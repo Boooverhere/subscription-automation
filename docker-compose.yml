@@ -23,6 +23,8 @@ services:
       - ../payment_automation/.env
     volumes:
       - ../payment_automation/credentials.json:/app/credentials.json:ro
+    ports:
+      - "8000:8000"
     restart: unless-stopped
     logging:
       driver: json-file
