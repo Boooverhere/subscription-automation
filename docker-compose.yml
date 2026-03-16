@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+
+  subscription:
+    build:
+      context: .
+    env_file:
+      - .env
+    volumes:
+      - ./credentials.json:/app/credentials.json:ro
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  payment:
+    build:
+      context: ../payment_automation
+    env_file:
+      - ../payment_automation/.env
+    volumes:
+      - ../payment_automation/credentials.json:/app/credentials.json:ro
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
