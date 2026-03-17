@@ -5,6 +5,9 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends cron \
     && rm -rf /var/lib/apt/lists/*
 
+# Create a non-root user to run the app
+RUN useradd --create-home --shell /bin/bash appuser
+
 WORKDIR /app
 
 # Install dependencies as a separate cached layer
@@ -17,6 +20,9 @@ COPY . .
 # Copy and register the crontab
 COPY docker-cron /etc/cron.d/subscription-cron
 RUN chmod 0644 /etc/cron.d/subscription-cron
+
+# Give appuser ownership of the app directory
+RUN chown -R appuser:appuser /app
 
 # Entrypoint: exports env vars so cron can read them, then starts cron
 COPY docker-entrypoint.sh /docker-entrypoint.sh
