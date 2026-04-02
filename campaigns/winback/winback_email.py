@@ -6,8 +6,8 @@ Includes logo header and offer card for credibility.
 Signed by Nathalie.
 """
 
-CHECKOUT_6M  = "https://www.iptvsup.com/checkout/?add-to-cart=723"   # 6 months Premium
-CHECKOUT_12M = "https://www.iptvsup.com/checkout/?add-to-cart=728"   # 12 months Premium
+CHECKOUT_6M  = "https://www.iptvsup.com/checkout/?add-to-cart=2710"  # 6 months
+CHECKOUT_12M = "https://www.iptvsup.com/checkout/?add-to-cart=2711"  # 12 months
 
 WINBACK_SUBJECT = "Your account expired — quick fix (limited)"
 
