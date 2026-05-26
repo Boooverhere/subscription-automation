@@ -49,7 +49,7 @@ def process_subscribers(worksheet, subscribers: list[dict], dry_run: bool = Fals
         # --- Guard: skip if status is not active ---
         # We still process "expired" status via date logic below,
         # but we skip anything cancelled, paused, etc.
-        if status not in ("active", "expired"):
+        if status not in ("active", "expired", "expires soon"):
             logger.info(f"Row {row_number} | {email} | Skipping — status is '{status}'")
             skipped += 1
             continue
