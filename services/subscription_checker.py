@@ -46,21 +46,13 @@ def process_subscribers(worksheet, subscribers: list[dict], dry_run: bool = Fals
             skipped += 1
             continue
 
-        # --- Guard: skip if status is not active ---
-        # We still process "expired" status via date logic below,
-        # but we skip anything cancelled, paused, etc.
-        if status not in ("active", "expired", "expires soon"):
-            logger.info(f"Row {row_number} | {email} | Skipping — status is '{status}'")
-            skipped += 1
-            continue
-
         # --- Guard: skip if end date is missing ---
         if not end_date_str:
             logger.warning(f"Row {row_number} | {email} | Skipping — no end date")
             skipped += 1
             continue
 
-        # --- Parse the end date ---
+        # --- Parse the end date (done early so renewal check can use it) ---
         end_date = parse_date(end_date_str)
         if end_date is None:
             logger.warning(f"Row {row_number} | {email} | Skipping — could not parse date: '{end_date_str}'")
@@ -69,7 +61,25 @@ def process_subscribers(worksheet, subscribers: list[dict], dry_run: bool = Fals
 
         # --- Calculate days left and determine stage ---
         days_left = days_until_expiry(end_date)
-        stage     = get_reminder_stage(days_left)
+
+        # --- Auto-reset churned subscribers who have renewed (future end date) ---
+        if status == "churned" and days_left > 0:
+            logger.info(f"Row {row_number} | {email} | Renewed — resetting status to active and clearing stage")
+            if not dry_run:
+                update_status_safe(worksheet, row_number, "active")
+                update_reminder_info_safe(worksheet, row_number, 0, "")
+            status = "active"
+            reminder_stage_str = "0"
+
+        # --- Guard: skip if status is not active ---
+        # We still process "expired" status via date logic below,
+        # but we skip anything cancelled, paused, churned, etc.
+        if status not in ("active", "expired", "expires soon"):
+            logger.info(f"Row {row_number} | {email} | Skipping — status is '{status}'")
+            skipped += 1
+            continue
+
+        stage = get_reminder_stage(days_left)
 
         if stage is None:
             logger.info(f"Row {row_number} | {email} | No reminder needed ({days_left} days left)")
