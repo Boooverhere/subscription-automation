@@ -23,14 +23,14 @@ logger = get_logger(__name__)
 # ---------------------------------------------------------------------------
 
 PLAN_LINKS = {
-    "1 month premium":  "https://www.iptvsup.com/checkout/?add-to-cart=714",
-    "3 months premium": "https://www.iptvsup.com/checkout/?add-to-cart=719",
-    "6 months premium": "https://www.iptvsup.com/checkout/?add-to-cart=723",
-    "12 months premium":"https://www.iptvsup.com/checkout/?add-to-cart=728",
-    "1 month":          "https://www.iptvsup.com/checkout/?add-to-cart=2708",
-    "3 months":         "https://www.iptvsup.com/checkout/?add-to-cart=2709",
-    "6 months":         "https://www.iptvsup.com/checkout/?add-to-cart=2710",
-    "12 months":        "https://www.iptvsup.com/checkout/?add-to-cart=2711",
+    "1 month premium":  "https://whop.com/checkout/plan_2ghQoKWkrtzq0?utm_source=newsletter&utm_medium=email",
+    "3 months premium": "https://whop.com/checkout/plan_y3I8n4KGjDsWV?utm_source=automathub&utm_medium=referral",
+    "6 months premium": "https://whop.com/checkout/plan_kYoenkXyrlk55?utm_source=newsletter&utm_medium=email",
+    "12 months premium":"https://whop.com/checkout/plan_Z1pYZcvi0A4XX?utm_source=newsletter&utm_medium=email",
+    "1 month":          "https://whop.com/checkout/plan_65nik3y7klplx?utm_source=newsletter&utm_medium=email",
+    "3 months":         "https://whop.com/checkout/plan_BmgZOaQnh44Fo?utm_source=newsletter&utm_medium=email",
+    "6 months":         "https://whop.com/checkout/plan_3Qnybx8hD2IuR?utm_source=newsletter&utm_medium=email",
+    "12 months":        "https://whop.com/checkout/plan_dQkSO1RvJLALh?utm_source=newsletter&utm_medium=email",
 }
 
 # Fallback if no plan matches

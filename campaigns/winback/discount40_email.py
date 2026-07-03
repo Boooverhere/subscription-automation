@@ -5,8 +5,8 @@ Win-Back Discount Campaign — Email Template
 One-time offer for expired subscribers.
 """
 
-CHECKOUT_6M  = "https://www.iptvsup.com/checkout/?add-to-cart=2710"
-CHECKOUT_12M = "https://www.iptvsup.com/checkout/?add-to-cart=2711"
+CHECKOUT_6M  = "https://whop.com/checkout/plan_3Qnybx8hD2IuR?utm_source=newsletter&utm_medium=email"
+CHECKOUT_12M = "https://whop.com/checkout/plan_dQkSO1RvJLALh?utm_source=newsletter&utm_medium=email"
 
 SUBJECT = "A special offer just for you — 40% off to come back"
 
