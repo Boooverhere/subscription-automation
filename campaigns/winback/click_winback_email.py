@@ -9,8 +9,8 @@ Segment B (2–3 clicks)   : Warmer — "you kept coming back"
 Segment C (4+ clicks)    : Personal — WhatsApp first, something blocked them
 """
 
-CHECKOUT_12M       = "https://whop.com/checkout/plan_dQkSO1RvJLALh?utm_source=newsletter&utm_medium=email"
-CHECKOUT_12M_PREM  = "https://whop.com/checkout/plan_Z1pYZcvi0A4XX?utm_source=newsletter&utm_medium=email"
+CHECKOUT_12M       = "https://www.iptvsup.com/checkout/?add-to-cart=2711&utm_source=brevo&utm_medium=email&utm_campaign=winback"
+CHECKOUT_12M_PREM  = "https://www.iptvsup.com/checkout/?add-to-cart=728&utm_source=brevo&utm_medium=email&utm_campaign=winback"
 IMAGE_12M          = "https://iptvsup.com/wp-content/uploads/2023/05/4489506467.png"
 IMAGE_12M_PREM     = "https://iptvsup.com/wp-content/uploads/2022/10/1-year.webp"
 WHATSAPP_LINK      = "https://wa.me/212600974091?text=Hi%2C%20I%27m%20interested%20in%20subscribing%20to%20IPTV%20Sup.%20Can%20you%20help%20me%3F"

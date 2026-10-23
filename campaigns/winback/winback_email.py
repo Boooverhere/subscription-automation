@@ -6,8 +6,8 @@ Includes logo header and offer card for credibility.
 Signed by Nathalie.
 """
 
-CHECKOUT_6M  = "https://whop.com/checkout/plan_3Qnybx8hD2IuR?utm_source=newsletter&utm_medium=email"  # 6 months
-CHECKOUT_12M = "https://whop.com/checkout/plan_dQkSO1RvJLALh?utm_source=newsletter&utm_medium=email"  # 12 months
+CHECKOUT_6M  = "https://www.iptvsup.com/checkout/?add-to-cart=2710&utm_source=brevo&utm_medium=email&utm_campaign=winback"  # 6 months
+CHECKOUT_12M = "https://www.iptvsup.com/checkout/?add-to-cart=2711&utm_source=brevo&utm_medium=email&utm_campaign=winback"  # 12 months
 
 WINBACK_SUBJECT = "Your account expired — quick fix (limited)"
 
