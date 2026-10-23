@@ -13,6 +13,7 @@ import sys
 from utils.logger import get_logger
 from services.sheets_service import get_sheet, get_all_subscribers
 from services.subscription_checker import process_subscribers
+from services.order_sync import sync_orders
 
 logger = get_logger(__name__)
 
@@ -26,10 +27,13 @@ def main():
     # Step 1: Connect to Google Sheet
     worksheet = get_sheet()
 
-    # Step 2: Fetch all subscriber rows
+    # Step 2: Add new customers / extend renewals from completed WooCommerce orders
+    sync_orders(worksheet, dry_run=dry_run)
+
+    # Step 3: Fetch all subscriber rows
     subscribers = get_all_subscribers(worksheet)
 
-    # Step 3: Process each subscriber and send emails where needed
+    # Step 4: Process each subscriber and send emails where needed
     process_subscribers(worksheet, subscribers, dry_run=dry_run)
 
     logger.info("=== Subscription Automation Finished ===")
