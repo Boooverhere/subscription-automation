@@ -12,7 +12,7 @@ SPREADSHEET_NAME = os.getenv("SPREADSHEET_NAME", "Subscription Tracker")
 GMAIL_ADDRESS = os.getenv("GMAIL_ADDRESS")       # The From address shown to recipients
 GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD")  # SMTP password / API key
 SMTP_LOGIN = os.getenv("SMTP_LOGIN", GMAIL_ADDRESS)   # SMTP login (may differ from From address)
-SENDER_NAME = os.getenv("SENDER_NAME", "IPTV Sup")
+SENDER_NAME = os.getenv("SENDER_NAME", "IPTVSup")
 SMTP_HOST = os.getenv("SMTP_HOST", "smtp-relay.brevo.com")
 SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
 

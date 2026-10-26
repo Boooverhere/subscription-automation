@@ -95,7 +95,7 @@ def _base_html(customer_name: str, headline: str, body_paragraphs: list[str], ct
                 www.iptvsup.com
             </a>
             <br><br>
-            You are receiving this email because you have an active or recent subscription with IPTV Sup.
+            You are receiving this email because you have an active or recent subscription with IPTVSup.
         </div>
 
     </body>
@@ -109,7 +109,7 @@ def _base_html(customer_name: str, headline: str, body_paragraphs: list[str], ct
 
 def _stage1_content(customer_name: str, plan: str) -> dict:
     return {
-        "subject": "Your IPTV Sup subscription expires in 7 days",
+        "subject": "Your IPTVSup subscription expires in 7 days",
         "body": _base_html(
             customer_name=customer_name,
             headline="Your subscription is expiring soon",
@@ -130,7 +130,7 @@ def _stage1_content(customer_name: str, plan: str) -> dict:
 
 def _stage2_content(customer_name: str, plan: str) -> dict:
     return {
-        "subject": "3 days left on your IPTV Sup subscription",
+        "subject": "3 days left on your IPTVSup subscription",
         "body": _base_html(
             customer_name=customer_name,
             headline="Only 3 days left",
@@ -151,7 +151,7 @@ def _stage2_content(customer_name: str, plan: str) -> dict:
 
 def _stage3_content(customer_name: str, plan: str) -> dict:
     return {
-        "subject": "Final reminder: Your IPTV Sup subscription expires tomorrow",
+        "subject": "Final reminder: Your IPTVSup subscription expires tomorrow",
         "body": _base_html(
             customer_name=customer_name,
             headline="Last chance — expires tomorrow",
@@ -172,7 +172,7 @@ def _stage3_content(customer_name: str, plan: str) -> dict:
 
 def _stage4_content(customer_name: str, plan: str) -> dict:
     return {
-        "subject": "Your IPTV Sup subscription has expired",
+        "subject": "Your IPTVSup subscription has expired",
         "body": _base_html(
             customer_name=customer_name,
             headline="Your subscription has expired",
@@ -193,7 +193,7 @@ def _stage4_content(customer_name: str, plan: str) -> dict:
 
 def _stage5_content(customer_name: str, plan: str) -> dict:
     return {
-        "subject": "A special offer just for you — come back to IPTV Sup",
+        "subject": "A special offer just for you, come back to IPTVSup",
         "body": _base_html(
             customer_name=customer_name,
             headline="We'd love to have you back",
@@ -220,7 +220,7 @@ def _stage6_content(customer_name: str, plan: str) -> dict:
             headline="Just a honest message from us",
             body_paragraphs=[
                 "We are not going to pretend this is just a routine email.",
-                "You subscribed to IPTV Sup before and we genuinely want you to know what you are missing — not to sell you something, but because we think it matters.",
+                "You subscribed to IPTVSup before and we genuinely want you to know what you are missing — not to sell you something, but because we think it matters.",
                 "Netflix charges you more every year for less content. Cable companies lock you into contracts and bill you for channels you never watch. You already know this.",
                 "With <strong>IPTVSup</strong> you get thousands of live channels, sports, movies and shows — for a fraction of the price, no contract, cancel anytime.",
                 "Because you were with us before, we want to offer you <strong>20% off</strong> to come back. Use code <strong style='font-size: 18px; color: #1a1a2e;'>RENEW20</strong> at checkout.",
