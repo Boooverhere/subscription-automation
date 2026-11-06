@@ -36,10 +36,10 @@ def _banner() -> str:
     <tr>
       <td bgcolor="{NAVY}" align="center"
           style="background-color: {NAVY}; background-image: linear-gradient(135deg, #1a1a2e 0%, #2b1d3a 60%, #4a2333 100%);
-                 padding: 26px 30px 34px 30px; text-align: center;">
-        <a href="https://iptvsup.com"><img src="{LOGO_URL}" alt="IPTVSup" width="170"
-           style="max-width: 170px; height: auto; border: 0; display: inline-block; margin-bottom: 22px;"></a>
-        <div style="font-size: 40px; line-height: 1; letter-spacing: 10px; margin: 0 0 16px 0;">📺📺📺</div>
+                 padding: 18px 30px 26px 30px; text-align: center;">
+        <a href="https://iptvsup.com"><img src="{LOGO_URL}" alt="IPTVSup" width="72"
+           style="width: 72px; max-width: 72px; height: auto; border: 0; display: inline-block; margin-bottom: 12px;"></a>
+        <div style="font-size: 34px; line-height: 1; letter-spacing: 8px; margin: 0 0 12px 0;">📺📺📺</div>
         <div style="font-family: Arial, sans-serif; font-size: 28px; line-height: 1.25; font-weight: bold; color: #ffffff; margin: 0 0 10px 0;">
           Now on up to 3 TVs at once
         </div>
