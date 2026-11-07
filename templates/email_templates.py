@@ -52,6 +52,20 @@ def get_plan_link(plan: str) -> str:
     return DEFAULT_LINK
 
 
+
+# Added to the renewal reminders (stages 1-4): the multi-screen offer, then the
+# question the owner asks every renewing customer.
+SCREENS_PARAGRAPH = (
+    "<strong>New:</strong> you can now renew for <strong>2 or 3 TVs at once</strong>, "
+    "so everyone at home can watch their own channel. Extra screens come at up to 20% off."
+)
+ASK_PARAGRAPH = (
+    "Which plan would you like to renew? Just reply with the length "
+    "(<strong>1, 3, 6 or 12 months</strong>) and the number of screens "
+    "(<strong>1, 2 or 3</strong>), and we will set it up for you. "
+    "Or renew online below and pick your screens at checkout."
+)
+
 def _base_html(customer_name: str, headline: str, body_paragraphs: list[str], cta_text: str, cta_url: str) -> str:
     """
     Builds a clean, consistent HTML email layout.
@@ -117,6 +131,8 @@ def _stage1_content(customer_name: str, plan: str) -> dict:
                 f"Your <strong>{plan}</strong> will expire in <strong>7 days</strong>.",
                 "We want to make sure you don't lose access to all the channels and features you rely on.",
                 "Renew now to keep everything running without interruption.",
+                SCREENS_PARAGRAPH,
+                ASK_PARAGRAPH,
             ],
             cta_text="Renew My Subscription",
             cta_url=get_plan_link(plan)
@@ -137,7 +153,9 @@ def _stage2_content(customer_name: str, plan: str) -> dict:
             body_paragraphs=[
                 f"Your <strong>{plan}</strong> expires in <strong>3 days</strong>.",
                 "After expiry, you will lose access to your channels immediately.",
-                "Don't let your subscription lapse — renew today and stay uninterrupted.",
+                "Don't let your subscription lapse. Renew today and stay uninterrupted.",
+                SCREENS_PARAGRAPH,
+                ASK_PARAGRAPH,
             ],
             cta_text="Renew Now",
             cta_url=get_plan_link(plan)
@@ -154,11 +172,13 @@ def _stage3_content(customer_name: str, plan: str) -> dict:
         "subject": "Final reminder: Your IPTVSup subscription expires tomorrow",
         "body": _base_html(
             customer_name=customer_name,
-            headline="Last chance — expires tomorrow",
+            headline="Last chance, expires tomorrow",
             body_paragraphs=[
                 f"Your <strong>{plan}</strong> expires <strong>tomorrow</strong>.",
                 "This is your final reminder. After tomorrow, your access will be suspended.",
                 "Renew right now to avoid any disruption to your service.",
+                SCREENS_PARAGRAPH,
+                ASK_PARAGRAPH,
             ],
             cta_text="Renew Before It Expires",
             cta_url=get_plan_link(plan)
@@ -179,7 +199,8 @@ def _stage4_content(customer_name: str, plan: str) -> dict:
             body_paragraphs=[
                 f"Your <strong>{plan}</strong> has expired and your access has been suspended.",
                 "We would love to have you back. Renew your subscription to restore full access immediately.",
-                "If you have any questions or need help choosing a plan, just reply to this email.",
+                SCREENS_PARAGRAPH,
+                ASK_PARAGRAPH,
             ],
             cta_text="Reactivate My Subscription",
             cta_url=get_plan_link(plan)
