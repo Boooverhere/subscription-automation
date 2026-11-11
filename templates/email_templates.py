@@ -12,6 +12,8 @@ Stages:
     4 → already expired
 """
 
+import re
+
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -19,36 +21,42 @@ logger = get_logger(__name__)
 
 # ---------------------------------------------------------------------------
 # Plan → Checkout URL mapping
-# To add or change a link, edit this dictionary only.
-# Matching is case-insensitive and checks if the key appears in the plan name.
+# To add or change a link, edit PLAN_PRODUCTS only.
+# The plan length ("12 Months", "1 Month") is read from the plan name.
 # ---------------------------------------------------------------------------
 
-PLAN_LINKS = {
-    "1 month premium"   : "https://www.iptvsup.com/checkout/?add-to-cart=714&utm_source=brevo&utm_medium=email&utm_campaign=renewal",
-    "3 months premium"  : "https://www.iptvsup.com/checkout/?add-to-cart=719&utm_source=brevo&utm_medium=email&utm_campaign=renewal",
-    "6 months premium"  : "https://www.iptvsup.com/checkout/?add-to-cart=723&utm_source=brevo&utm_medium=email&utm_campaign=renewal",
-    "12 months premium" : "https://www.iptvsup.com/checkout/?add-to-cart=728&utm_source=brevo&utm_medium=email&utm_campaign=renewal",
-    "1 month"           : "https://www.iptvsup.com/checkout/?add-to-cart=2708&utm_source=brevo&utm_medium=email&utm_campaign=renewal",
-    "3 months"          : "https://www.iptvsup.com/checkout/?add-to-cart=2709&utm_source=brevo&utm_medium=email&utm_campaign=renewal",
-    "6 months"          : "https://www.iptvsup.com/checkout/?add-to-cart=2710&utm_source=brevo&utm_medium=email&utm_campaign=renewal",
-    "12 months"         : "https://www.iptvsup.com/checkout/?add-to-cart=2711&utm_source=brevo&utm_medium=email&utm_campaign=renewal",
+_UTM = "utm_source=brevo&utm_medium=email&utm_campaign=renewal"
+
+# Plan length in months → WooCommerce product ID.
+# The Premium tier (products 714/719/723/728) was removed from the store in
+# Nov 2026; those products are no longer purchasable, so their add-to-cart
+# links land on an empty cart. Premium customers renew on the standard plan
+# of the same length.
+PLAN_PRODUCTS = {
+    1: 2708,   # 1 Month Television Subscription
+    3: 2709,   # 3 Months Television Subscription
+    6: 2710,   # 6 Months Television Subscription
+    12: 2711,  # 12 Months Television Subscription
 }
 
-# Fallback if no plan matches
-DEFAULT_LINK = "https://www.iptvsup.com"
+# Fallback if the plan length isn't sold (e.g. 24 months, free trial):
+# the plans page, where the customer can pick one.
+DEFAULT_LINK = f"https://www.iptvsup.com/iptv-plans/?{_UTM}"
+
+_MONTHS_RE = re.compile(r"(\d+)\s*months?\b", re.IGNORECASE)
 
 
 def get_plan_link(plan: str) -> str:
     """
-    Matches the plan string from the sheet to a checkout URL.
-    Premium plans are checked first so '1 Month Premium' doesn't
-    accidentally match the plain '1 Month' entry.
+    Maps the plan string from the sheet (e.g. '12 Months Premium Subscription',
+    '6 Months Subscription - 2 Connections', '12 Month Premium Subscription')
+    to the checkout URL of the live plan with the same length.
     """
-    plan_lower = plan.lower()
-    for key, url in PLAN_LINKS.items():
-        if key in plan_lower:
-            return url
-    logger.warning(f"No checkout link found for plan: '{plan}' — using default link")
+    match = _MONTHS_RE.search(plan or "")
+    product_id = PLAN_PRODUCTS.get(int(match.group(1))) if match else None
+    if product_id:
+        return f"https://www.iptvsup.com/checkout/?add-to-cart={product_id}&{_UTM}"
+    logger.warning(f"No checkout link found for plan: '{plan}', using the plans page")
     return DEFAULT_LINK
 
 
