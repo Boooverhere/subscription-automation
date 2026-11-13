@@ -13,3 +13,6 @@ automation.log
 
 # Mac
 .DS_Store
+
+# Persistent Docker log folder
+logs/

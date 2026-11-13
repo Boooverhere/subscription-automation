@@ -43,8 +43,13 @@ def send_email(to_email: str, subject: str, body_html: str) -> bool:
         logger.info(f"Email sent → {to_email} | Subject: {subject}")
         return True
 
-    except smtplib.SMTPAuthenticationError:
-        logger.error("Authentication failed. Check your email address and password in .env")
+    except smtplib.SMTPAuthenticationError as e:
+        detail = e.smtp_error.decode() if isinstance(e.smtp_error, bytes) else e.smtp_error
+        logger.error(f"SMTP auth rejected ({e.smtp_code}): {detail}")
+        # Code 525 means the credentials are fine but Brevo is blocking the
+        # sending IP — whitelist it under Brevo → SMTP & API → Authorized IPs.
+        if e.smtp_code == 525:
+            logger.error("This is an IP whitelist problem, not a password problem.")
         return False
 
     except smtplib.SMTPException as e:

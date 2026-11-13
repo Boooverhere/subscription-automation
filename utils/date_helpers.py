@@ -63,3 +63,25 @@ def get_reminder_stage(days_left: int) -> int | None:
             return total - index  # 1 day→stage 3, 3 days→stage 2, 7 days→stage 1
 
     return None  # Too early — no reminder needed
+
+
+def current_cycle_stage(sent_stage: int, last_sent_str: str, end_date: date) -> int:
+    """
+    Returns the reminder stage that was sent for the CURRENT subscription period.
+
+    The sheet keeps reminder_stage after a customer renews, so an old stage
+    (e.g. 4 or 5 from the previous period) would block every new reminder.
+    The earliest reminder for the current period is sent max(REMINDER_DAYS)
+    days before end_date, so anything sent before that belongs to an older
+    period and counts as "nothing sent yet" (0).
+
+    If last_reminder_sent is empty or unreadable we keep the stage as-is.
+    """
+    if not sent_stage:
+        return 0
+    last_sent = parse_date(last_sent_str)
+    if last_sent is None:
+        return sent_stage
+    if (end_date - last_sent).days > max(REMINDER_DAYS):
+        return 0
+    return sent_stage

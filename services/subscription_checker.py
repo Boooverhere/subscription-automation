@@ -1,7 +1,7 @@
 import time
 from datetime import date
 from utils.logger import get_logger
-from utils.date_helpers import parse_date, days_until_expiry, get_reminder_stage
+from utils.date_helpers import parse_date, days_until_expiry, get_reminder_stage, current_cycle_stage
 from services.email_service import send_email
 from templates.email_templates import get_email_content
 from config import COL_NAME, COL_EMAIL, COL_PLAN, COL_END_DATE, COL_STATUS, COL_LAST_REMINDER, COL_STAGE
@@ -94,6 +94,12 @@ def process_subscribers(worksheet, subscribers: list[dict], dry_run: bool = Fals
             already_sent_stage = int(reminder_stage_str) if reminder_stage_str else 0
         except ValueError:
             already_sent_stage = 0
+
+        # Ignore a stage left over from a previous subscription period (renewals)
+        cycle_stage = current_cycle_stage(already_sent_stage, last_reminder, end_date)
+        if cycle_stage != already_sent_stage:
+            logger.info(f"Row {row_number} | {email} | Stage {already_sent_stage} (sent {last_reminder}) is from a previous period — ignoring it")
+            already_sent_stage = cycle_stage
 
         if already_sent_stage >= stage:
             logger.info(f"Row {row_number} | {email} | Stage {stage} already sent — skipping")

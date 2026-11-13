@@ -28,7 +28,10 @@ def get_logger(name: str) -> logging.Logger:
         console_handler.setFormatter(formatter)
 
         # --- Handler 2: save to log file ---
-        log_file = os.path.join(os.path.dirname(__file__), "..", "automation.log")
+        # LOG_FILE lets Docker point this at a mounted folder, so the history
+        # survives container rebuilds (docker compose up --build).
+        log_file = os.getenv("LOG_FILE") or os.path.join(os.path.dirname(__file__), "..", "automation.log")
+        os.makedirs(os.path.dirname(os.path.abspath(log_file)), exist_ok=True)
         file_handler = logging.FileHandler(log_file)
         file_handler.setLevel(logging.DEBUG)
         file_handler.setFormatter(formatter)
