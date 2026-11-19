@@ -91,7 +91,8 @@ def _body(first: str, wave: str, audience: str) -> str:
         if audience == "active":
             intro = f"""<p {P}>Hi {first},</p>
             <p {P}>For Black Friday we kept our prices the same and added free months instead. Choose your next plan
-            before Monday night and the bonus months are added on top:</p>"""
+            before Monday night and the bonus months are added on top. Your current plan keeps running: the new months
+            are added to the time you still have left, so renewing early costs you nothing.</p>"""
             outro = f"""<p {P}>Not sure which plan or how many screens you have now? Reply to this email or message us on
             <a href="{WHATSAPP_URL}" style="color: #b8860b;">WhatsApp</a> and we will sort it out for you.</p>"""
             cta = "Get my free months"
@@ -111,6 +112,8 @@ def _body(first: str, wave: str, audience: str) -> str:
     elif wave == "reminder":
         intro = f"""<p {P}>Hi {first},</p>
         <p {P}>A quick reminder: the IPTVSup Black Friday bonus ends on Monday, November 30 at midnight.</p>"""
+        if audience == "active":
+            intro += f"""<p {P}>Your plan does not need to run out first: the new months are added to the time you still have left.</p>"""
         outro = f"""<p {P}>The 12 month plan works out to $3.89 a month with the bonus. No code needed, the free months
         show up under your plan at checkout.</p>"""
         cta = "Get my free months"
