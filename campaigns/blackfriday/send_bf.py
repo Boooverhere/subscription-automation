@@ -4,6 +4,7 @@ Black Friday 2026 sender: one script for all three waves
 Audiences (one email per address per wave, customers win over subscribers):
   active      tracker status active / expires soon
   churned     tracker status expired / churned
+  notify      visitors who asked on iptvsup.com to be emailed when the sale starts
   subscriber  contacts in the Brevo newsletter list (--list-id) who are not in the tracker
 Skips: Brevo blocklists (marketing unsubscribes + transactional blocks), SKIP_EMAILS,
 addresses already sent this wave, and anyone who ordered on iptvsup.com since the
@@ -43,7 +44,7 @@ logger = get_logger(__name__)
 
 WAVES = ("launch", "reminder", "lastcall")
 TRACKER_AUDIENCE = {"active": "active", "expires soon": "active", "expired": "churned", "churned": "churned"}
-RANK = {"subscriber": 0, "churned": 1, "active": 2}
+RANK = {"subscriber": 0, "notify": 1, "churned": 2, "active": 3}
 SKIP_EMAILS = {"retardjews@gmail.com"}
 SALE_START = "2026-11-26T00:00:00"
 BREVO = "https://api.brevo.com/v3"
@@ -104,6 +105,23 @@ def bf_buyers() -> set:
         page += 1
 
 
+def wc_get(path: str):
+    auth = base64.b64encode(f"{WC_CONSUMER_KEY}:{WC_CONSUMER_SECRET}".encode()).decode()
+    req = urllib.request.Request(f"{WC_STORE_URL}/wp-json/{path}",
+                                 headers={"Authorization": f"Basic {auth}", "User-Agent": "subscription-automation"})
+    with urllib.request.urlopen(req, timeout=30) as r:
+        return json.load(r)
+
+
+def notify_signups() -> list:
+    """Emails left in the site's Black Friday "notify me" popup."""
+    try:
+        return wc_get("wc-iptvsup/v1/bf-notify")
+    except urllib.error.HTTPError as e:
+        logger.error(f"Could not read site signups ({e.code}). Stopping.")
+        sys.exit(1)
+
+
 def sent_log(wave: str) -> Path:
     return Path(__file__).resolve().parent / f"bf_{wave}_sent.log"
 
@@ -118,7 +136,7 @@ def build_targets(list_id, key: str) -> list:
 
     def add(email, name, aud):
         e = email.strip().lower()
-        if "@" not in e or e in SKIP_EMAILS:
+        if "@" not in e or e in SKIP_EMAILS or e.endswith("@example.com"):
             return
         cur = best.get(e)
         if cur is None or RANK[aud] > RANK[cur["audience"]]:
@@ -130,6 +148,8 @@ def build_targets(list_id, key: str) -> list:
         aud = TRACKER_AUDIENCE.get(s.get(COL_STATUS, "").strip().lower())
         if aud:
             add(s.get(COL_EMAIL, ""), s.get(COL_NAME, "").strip(), aud)
+    for row in notify_signups():
+        add(row.get("email", ""), "", "notify")
     if list_id:
         for c in list_contacts(list_id, key):
             attrs = c.get("attributes") or {}
@@ -158,7 +178,7 @@ def main():
 
     if "--test-email" in args:
         to = arg(args, "--test-email")
-        for aud in ("active", "churned", "subscriber"):
+        for aud in ("active", "churned", "subscriber", "notify"):
             c = get_bf_email("Mehdi", wave, aud)
             ok = send_email(to, f"[TEST {wave}/{aud}] {c['subject']}", c["body"])
             logger.info(f"Test ({wave}/{aud}) to {to}: {'sent' if ok else 'FAILED'}")
@@ -194,7 +214,7 @@ def main():
 
     counts = {a: sum(t["audience"] == a for t in final) for a in RANK}
     logger.info(f"Wave {wave} | to send {len(final)} (active {counts['active']}, churned {counts['churned']}, "
-                f"subscriber {counts['subscriber']}) | unsubscribed/blocked {skipped} | already bought {bought} | "
+                f"notify {counts['notify']}, subscriber {counts['subscriber']}) | unsubscribed/blocked {skipped} | already bought {bought} | "
                 f"already sent {len(sent_before)}")
 
     if "--send" not in args:

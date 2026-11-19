@@ -27,6 +27,10 @@ SUBJECTS = {
     ("lastcall", "active"): "Last day: your free IPTVSup months end tonight",
     ("lastcall", "churned"): "Last day to come back with up to 6 months free",
     ("lastcall", "subscriber"): "Last day: IPTVSup Black Friday ends tonight",
+    # Visitors who asked on the site to be told when the deal starts
+    ("launch", "notify"): "It's live: IPTVSup Black Friday, up to 6 months free",
+    ("reminder", "notify"): "2 days left: 18 months of IPTVSup for the price of 12",
+    ("lastcall", "notify"): "Last day: IPTVSup Black Friday ends tonight",
 }
 
 P = 'style="font-family: Arial, sans-serif; font-size: 16px; line-height: 1.65; color: #333333; margin: 0 0 16px 0;"'
@@ -122,8 +126,12 @@ def _body(first: str, wave: str, audience: str) -> str:
 def get_bf_email(customer_name: str, wave: str, audience: str) -> dict:
     first = customer_name.strip().split()[0].capitalize() if customer_name and customer_name.strip() else "there"
     small = 'style="font-family: Arial, sans-serif; font-size: 12px; line-height: 1.6; color: #999999; margin: 0;"'
-    why = ("you have or had an IPTVSup subscription" if audience != "subscriber"
-           else "you subscribed to IPTVSup updates")
+    why = {"subscriber": "you subscribed to IPTVSup updates",
+           "notify": "you asked us on iptvsup.com to email you when Black Friday starts"}.get(
+        audience, "you have or had an IPTVSup subscription")
+    subject = SUBJECTS[(wave, audience)]
+    if audience == "notify":
+        audience = "subscriber"  # same body as newsletter subscribers
     body = f"""<!DOCTYPE html>
 <html>
 <head>
@@ -161,4 +169,4 @@ def get_bf_email(customer_name: str, wave: str, audience: str) -> dict:
 </table>
 </body>
 </html>"""
-    return {"subject": SUBJECTS[(wave, audience)], "body": body}
+    return {"subject": subject, "body": body}
