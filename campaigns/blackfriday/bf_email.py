@@ -3,7 +3,8 @@ Black Friday 2026 emails: bonus months, prices unchanged
 ---------------------------------------------------------
   3 months + 1 free, 6 months + 2 free, 12 months + 6 free (Nov 26 to Nov 30)
 
-Waves:     launch (Nov 27), reminder (Nov 29), lastcall (Nov 30)
+Waves:     teaser (Tue Nov 24), launch (Fri Nov 27), lastcall (Mon Nov 30)
+           (the Nov 29 reminder was dropped: max 3 Black Friday emails per person)
 Audiences: active      current customers (tracker: active / expires soon)
            churned     former customers (tracker: expired / churned)
            subscriber  newsletter contacts who never bought
@@ -18,6 +19,9 @@ GOLD = "#f5c451"
 INK = "#0b0b0d"
 
 SUBJECTS = {
+    ("teaser", "active"): "Black Friday starts Thursday: up to 6 free months on your IPTVSup plan",
+    ("teaser", "churned"): "Black Friday starts Thursday: up to 6 months of IPTVSup free",
+    ("teaser", "subscriber"): "Black Friday starts Thursday: up to 6 months of IPTVSup free",
     ("launch", "active"): "Black Friday: up to 6 free months on your IPTVSup plan",
     ("launch", "churned"): "Come back to IPTVSup with up to 6 months free",
     ("launch", "subscriber"): "IPTVSup Black Friday: pay for 12 months, watch for 18",
@@ -52,7 +56,10 @@ def _button(url: str, label: str) -> str:
 
 
 def _banner(wave: str) -> str:
-    kicker = {"launch": "BLACK FRIDAY", "reminder": "2 DAYS LEFT", "lastcall": "LAST DAY"}[wave]
+    kicker = {"teaser": "BLACK FRIDAY STARTS THURSDAY", "launch": "BLACK FRIDAY",
+              "reminder": "2 DAYS LEFT", "lastcall": "LAST DAY"}[wave]
+    sub = ("Same prices, free months on top. Thursday, November 26 to Monday, November 30."
+           if wave == "teaser" else "Same prices, free months added automatically. Ends Monday, November 30.")
     return f"""
     <tr>
       <td bgcolor="{INK}" align="center" style="background-color: {INK}; padding: 20px 30px 26px 30px; text-align: center;">
@@ -63,7 +70,7 @@ def _banner(wave: str) -> str:
           Pay for 12 months.<br><span style="color: {GOLD};">Watch for 18.</span>
         </div>
         <div style="font-family: Arial, sans-serif; font-size: 15px; line-height: 1.5; color: #d8d4c8; margin: 0;">
-          Same prices, free months added automatically. Ends Monday, November 30.
+          {sub}
         </div>
       </td>
     </tr>"""
@@ -87,6 +94,21 @@ def _offer_table() -> str:
 
 def _body(first: str, wave: str, audience: str) -> str:
     url = _link(wave, audience)
+    if wave == "teaser":
+        intro = f"""<p {P}>Hi {first},</p>
+        <p {P}>A heads-up before the busiest week of the year: our Black Friday deal starts this <strong>Thursday,
+        November 26</strong> and runs until the end of Monday, November 30. No discount codes: our prices stay the same,
+        and you get free months on top.</p>"""
+        if audience == "active":
+            outro = f"""<p {P}><strong>Thinking of renewing this week? Wait until Thursday.</strong> Your new months are added to
+            the time you still have left, plus the bonus, so renewing during the sale costs you nothing.</p>
+            <p {P}>Not sure which plan or how many screens you have? Reply to this email and we will check for you.</p>"""
+        else:
+            outro = f"""<p {P}>Works on the TV, stick or phone you already have, on up to 3 screens, and your login arrives
+            within 5 to 10 minutes of ordering. Want to test it before Thursday? Reply <strong>"test"</strong> and we will
+            set up a free trial.</p>"""
+        return (intro + _offer_table() + _button(url, "See the Black Friday deal")
+                + '<div style="height: 18px;"></div>' + outro)
     if wave == "launch":
         if audience == "active":
             intro = f"""<p {P}>Hi {first},</p>

@@ -18,7 +18,8 @@ Brevo only accepts calls from the VPS. Pass the API key from the payment contain
   ... --wave launch --list-id N --count                         # audience sizes only
   ... --wave launch --test-email you@example.com                # all 3 versions, marked [TEST]
   ... --wave launch --list-id N --send                          # live
-Waves: launch (Nov 27), reminder (Nov 29), lastcall (Nov 30).
+Waves: teaser (Tue Nov 24), launch (Fri Nov 27), lastcall (Mon Nov 30).
+The teaser skips the site's notify signups (they asked for one email when it starts).
 """
 
 import base64
@@ -42,7 +43,7 @@ from campaigns.blackfriday.bf_email import get_bf_email
 
 logger = get_logger(__name__)
 
-WAVES = ("launch", "reminder", "lastcall")
+WAVES = ("teaser", "launch", "lastcall")  # Nov 29 reminder dropped: max 3 emails per person
 TRACKER_AUDIENCE = {"active": "active", "expires soon": "active", "expired": "churned", "churned": "churned"}
 RANK = {"subscriber": 0, "notify": 1, "churned": 2, "active": 3}
 SKIP_EMAILS = {"retardjews@gmail.com"}
@@ -131,7 +132,7 @@ def load_sent(wave: str) -> set:
     return {l.strip().lower() for l in p.read_text().splitlines() if l.strip()} if p.exists() else set()
 
 
-def build_targets(list_id, key: str) -> list:
+def build_targets(list_id, key: str, wave: str) -> list:
     best = {}
 
     def add(email, name, aud):
@@ -148,8 +149,9 @@ def build_targets(list_id, key: str) -> list:
         aud = TRACKER_AUDIENCE.get(s.get(COL_STATUS, "").strip().lower())
         if aud:
             add(s.get(COL_EMAIL, ""), s.get(COL_NAME, "").strip(), aud)
-    for row in notify_signups():
-        add(row.get("email", ""), "", "notify")
+    if wave != "teaser":
+        for row in notify_signups():
+            add(row.get("email", ""), "", "notify")
     if list_id:
         for c in list_contacts(list_id, key):
             attrs = c.get("attributes") or {}
@@ -178,7 +180,7 @@ def main():
 
     if "--test-email" in args:
         to = arg(args, "--test-email")
-        for aud in ("active", "churned", "subscriber", "notify"):
+        for aud in ("active", "churned", "subscriber") + (() if wave == "teaser" else ("notify",)):
             c = get_bf_email("Mehdi", wave, aud)
             ok = send_email(to, f"[TEST {wave}/{aud}] {c['subject']}", c["body"])
             logger.info(f"Test ({wave}/{aud}) to {to}: {'sent' if ok else 'FAILED'}")
@@ -192,7 +194,7 @@ def main():
         logger.warning("No --list-id: newsletter subscribers are NOT included.")
 
     try:
-        targets = build_targets(list_id, key)
+        targets = build_targets(list_id, key, wave)
         blocked = transactional_blocked(key)
     except urllib.error.HTTPError as e:
         logger.error(f"Brevo API refused ({e.code}). Run this on the VPS. Stopping.")
