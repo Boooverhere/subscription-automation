@@ -169,8 +169,21 @@ def _body(first: str, wave: str, audience: str) -> tuple:
     return top, "Claim my free months now", bottom
 
 
-def get_bf_email(customer_name: str, wave: str, audience: str) -> dict:
-    first = customer_name.strip().split()[0].capitalize() if customer_name and customer_name.strip() else "there"
+BREVO_FIRST = '{{ contact.FIRSTNAME | default : "there" }}'
+PREVIEW = {
+    "teaser": "Starts Thursday: up to 6 months free on IPTVSup, same prices, no code.",
+    "launch": "Black Friday is live: up to 6 months free on IPTVSup, no code needed.",
+    "reminder": "2 days left: up to 6 months free on IPTVSup.",
+    "lastcall": "Last day: your free IPTVSup months end tonight at midnight.",
+}
+
+
+def get_bf_email(customer_name: str, wave: str, audience: str, brevo: bool = False) -> dict:
+    """brevo=True: for a Brevo campaign (Brevo fills the first name and the unsubscribe link)."""
+    if brevo:
+        first = BREVO_FIRST
+    else:
+        first = customer_name.strip().split()[0].capitalize() if customer_name and customer_name.strip() else "there"
     why = {"subscriber": "you subscribed to IPTVSup updates",
            "notify": "you asked us on iptvsup.com to email you when Black Friday starts"}.get(
         audience, "you have or had an IPTVSup subscription")
@@ -178,6 +191,8 @@ def get_bf_email(customer_name: str, wave: str, audience: str) -> dict:
     if audience == "notify":
         audience = "subscriber"  # same body as newsletter subscribers
     top, cta, bottom = _body(first, wave, audience)
+    unsub = (f'<a href="{{{{ unsubscribe }}}}" style="color: {MUTED};">Unsubscribe</a>' if brevo
+             else 'Don\'t want these emails? Reply "unsubscribe" and we will remove you.')
     small = f'style="font-family: {FONT}; font-size: 13px; line-height: 1.6; color: {MUTED}; margin: 0;"'
     body = f"""<!DOCTYPE html>
 <html>
@@ -227,8 +242,7 @@ def get_bf_email(customer_name: str, wave: str, audience: str) -> dict:
     <td class="pad" style="padding: 0 40px 34px 40px;">
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top: 1px solid #1E1E24;">
         <tr><td style="padding-top: 18px;">
-          <p {small}>You are receiving this because {why}. Don't want these emails?
-          Reply "unsubscribe" and we will remove you.</p>
+          <p {small}>You are receiving this because {why}. {unsub}</p>
         </td></tr>
       </table>
     </td>
@@ -238,7 +252,7 @@ def get_bf_email(customer_name: str, wave: str, audience: str) -> dict:
 </table>
 </body>
 </html>"""
-    return {"subject": subject, "body": body}
+    return {"subject": subject, "body": body, "preview": PREVIEW[wave]}
 
 
 # ── Abandoned cart (Brevo automation template, Nov 26 to Nov 30) ──
