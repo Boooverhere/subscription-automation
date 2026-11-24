@@ -1,7 +1,7 @@
 """
 Black Friday 2026 emails: bonus months, prices unchanged
 ---------------------------------------------------------
-  3 months + 1 free, 6 months + 2 free, 12 months + 6 free (Nov 26 to Nov 30)
+  3 months + 1 free, 6 months + 3 free, 12 months + 6 free (Nov 26 to Nov 30)
 
 Waves:     teaser (Tue Nov 24), launch (Fri Nov 27), lastcall (Mon Nov 30)
            (the Nov 29 reminder was dropped: max 3 Black Friday emails per person)
@@ -104,7 +104,7 @@ def _hero(wave: str) -> str:
 
 def _offer_table() -> str:
     rows = [("12 months", "$69.99", "+6 months free", True),
-            ("6 months", "$49.99", "+2 months free", False),
+            ("6 months", "$49.99", "+3 months free", False),
             ("3 months", "$34.99", "+1 month free", False)]
     cells = ""
     for plan, price, bonus, top in rows:
