@@ -202,7 +202,7 @@ def main():
         to = arg(args, "--test-email")
         for aud in ("active", "churned", "subscriber") + (() if wave == "teaser" else ("notify",)):
             c = get_bf_email("Mehdi", wave, aud)
-            ok = send_email(to, f"[TEST {wave}/{aud}] {c['subject']}", c["body"])
+            ok = send_email(to, f"[TEST {wave}/{aud}] {c['subject']}", c["body"], tag="bf26_test")
             logger.info(f"Test ({wave}/{aud}) to {to}: {'sent' if ok else 'FAILED'}")
         return
 
@@ -253,7 +253,7 @@ def main():
     ok_n = err_n = 0
     for i, t in enumerate(final, 1):
         c = get_bf_email(t["name"], wave, t["audience"])
-        if send_email(t["email"], c["subject"], c["body"]):
+        if send_email(t["email"], c["subject"], c["body"], tag=f"bf26_{wave}"):
             with open(sent_log(wave), "a") as f:
                 f.write(t["email"].lower() + "\n")
             ok_n += 1

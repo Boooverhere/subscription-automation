@@ -7,7 +7,7 @@ from config import GMAIL_ADDRESS, GMAIL_APP_PASSWORD, SMTP_LOGIN, SENDER_NAME, S
 logger = get_logger(__name__)
 
 
-def send_email(to_email: str, subject: str, body_html: str) -> bool:
+def send_email(to_email: str, subject: str, body_html: str, tag: str = "") -> bool:
     """
     Sends an HTML email via Gmail SMTP.
 
@@ -21,6 +21,9 @@ def send_email(to_email: str, subject: str, body_html: str) -> bool:
     msg["Subject"] = subject
     msg["From"]    = f"{SENDER_NAME} <{GMAIL_ADDRESS}>"
     msg["To"]      = to_email
+    if tag:
+        # Brevo groups emails by this tag in Transactional > Statistics / Logs
+        msg["X-Mailin-Tag"] = tag
 
     # Attach the HTML body
     msg.attach(MIMEText(body_html, "html"))
