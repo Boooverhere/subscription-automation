@@ -42,9 +42,10 @@ SUBJECTS = {
 }
 
 # Line under "Black Friday" in the hero
-KICKER = {"teaser": "STARTS THURSDAY", "launch": "STARTS NOW", "reminder": "2 DAYS LEFT", "lastcall": "LAST DAY"}
+KICKER = {"cart": "YOUR CART IS WAITING", "teaser": "STARTS THURSDAY", "launch": "STARTS NOW", "reminder": "2 DAYS LEFT", "lastcall": "LAST DAY"}
 # Small line under "6 MONTHS FREE"
 HERO_NOTE = {
+    "cart": "Ends Monday, Nov 30 at midnight",
     "teaser": "Thursday, Nov 26 to Monday, Nov 30",
     "launch": "Same prices, no code needed",
     "reminder": "Ends Monday at midnight",
@@ -238,3 +239,79 @@ def get_bf_email(customer_name: str, wave: str, audience: str) -> dict:
 </body>
 </html>"""
     return {"subject": subject, "body": body}
+
+
+# ── Abandoned cart (Brevo automation template, Nov 26 to Nov 30) ──
+# Brevo fills {{ contact.FIRSTNAME }} and {{ unsubscribe }} itself.
+CART_SUBJECT = "🎁 Your free months are still in your cart"
+CART_PREVIEW = "Black Friday on IPTVSup: up to 6 months free on your plan, until Monday night."
+CART_URL = "https://iptvsup.com/checkout/?utm_source=brevo&utm_medium=email&utm_campaign=bf26_abandoned_cart"
+
+
+def get_abandoned_cart_template() -> dict:
+    first = '{{ contact.FIRSTNAME | default : "there" }}'
+    top = f"""<p {P}>Hi {first}, you were one step away. Your plan is still in your cart, and this week it comes
+    with free months on top. No code needed, they are added to your order automatically.</p>"""
+    bottom = f"""<p {P}>Your login arrives by email within 5 to 10 minutes of payment. Questions first? Reply to this
+    email or message us on <a href="{WHATSAPP_URL}" style="color: {ORANGE};">WhatsApp</a>.</p>"""
+    small = f'style="font-family: {FONT}; font-size: 13px; line-height: 1.6; color: {MUTED}; margin: 0;"'
+    html = f"""<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="color-scheme" content="dark">
+<meta name="supported-color-schemes" content="dark">
+<style>
+  @media only screen and (max-width: 620px) {{
+    .wrap {{ width: 100% !important; }}
+    .pad {{ padding-left: 20px !important; padding-right: 20px !important; }}
+    .h-bf {{ font-size: 44px !important; }}
+    .h-big {{ font-size: 46px !important; }}
+  }}
+</style>
+</head>
+<body style="margin: 0; padding: 0; background-color: {BG};">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="{BG}" style="background-color: {BG};">
+<tr><td align="center">
+<table class="wrap" width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="{BG}"
+       style="max-width: 600px; width: 100%; background-color: {BG};">
+  {_logo()}
+  {_hero("cart")}
+  <tr>
+    <td class="pad" style="padding: 32px 40px 8px 40px;">
+      {top}
+      {_offer_table()}
+      {_button(CART_URL, "Complete my order")}
+      <div style="height: 22px; line-height: 22px;">&nbsp;</div>
+      {bottom}
+    </td>
+  </tr>
+  <tr>
+    <td class="pad" style="padding: 8px 40px 0 40px;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top: 1px solid #2E2E36;">
+        <tr>
+          <td style="padding: 22px 0; font-family: {FONT}; font-size: 16px; line-height: 1.5; color: {MUTED};">
+            Thanks for reading,<br>IPTVSup Team</td>
+          <td align="right" style="padding: 22px 0; font-family: {FONT}; font-size: 16px; line-height: 1.5;">
+            <a href="https://iptvsup.com" style="color: {MUTED}; text-decoration: none;">iptvsup.com</a></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td class="pad" style="padding: 0 40px 34px 40px;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top: 1px solid #1E1E24;">
+        <tr><td style="padding-top: 18px;">
+          <p {small}>You are receiving this because you started an order at iptvsup.com.
+          <a href="{{{{ unsubscribe }}}}" style="color: {MUTED};">Unsubscribe</a></p>
+        </td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>"""
+    return {"subject": CART_SUBJECT, "preview": CART_PREVIEW, "html": html}
