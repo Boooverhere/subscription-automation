@@ -9,7 +9,7 @@ For one wave it:
        "BF26 <wave> · active · <date time>" / "· churned" / "· subscriber" / "· notify"
        (with --only-old: "BF26 <wave> · old churned · <date time>" etc.)
   3. creates one DRAFT campaign per non-empty list with the right design, subject,
-     preview text, tag "bf26_<wave>" and Brevo's first-name + unsubscribe placeholders
+     preview text and Brevo's first-name + unsubscribe placeholders
 Nothing is sent: open Brevo > Campaigns, check the drafts, then Send or Schedule.
 
 Brevo only accepts calls from the VPS:
@@ -144,7 +144,6 @@ def main():
             "replyTo": SENDER["email"],
             "htmlContent": c["body"],
             "recipients": {"listIds": [list_id]},
-            "tag": f"bf26_{wave}",
             "inlineImageActivation": False,
         })
         logger.info(f"Draft campaign #{camp.get('id')} '{name}' -> list #{list_id} ({len(people)} people)")
