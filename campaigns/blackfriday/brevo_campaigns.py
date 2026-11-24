@@ -11,6 +11,7 @@ For one wave it:
   3. creates one DRAFT campaign per non-empty list with the right design, subject,
      preview text and Brevo's first-name + unsubscribe placeholders
 Nothing is sent: open Brevo > Campaigns, check the drafts, then Send or Schedule.
+People in the Brevo list "BF26 do not email" are always left out.
 
 Brevo only accepts calls from the VPS:
 
@@ -39,6 +40,7 @@ from campaigns.blackfriday.send_bf import (WAVES, RANK, arg, build_targets, tran
 logger = get_logger(__name__)
 BREVO = "https://api.brevo.com/v3"
 SENDER = {"name": "IPTVSup", "email": "contact@iptvsup.com"}
+DO_NOT_EMAIL = "BF26 do not email"  # Brevo list: people the owner asked to leave out
 
 
 def brevo(method: str, path: str, key: str, body=None):
@@ -102,10 +104,25 @@ def main():
     blocked = transactional_blocked(key)
     buyers = bf_buyers()
 
-    final, skipped, bought = [], 0, 0
+    # Anyone the owner put in the Brevo list "BF26 do not email" is always left out
+    lists = brevo("GET", "/contacts/lists?limit=50", key).get("lists", [])
+    dne = next((l for l in lists if l["name"] == DO_NOT_EMAIL), None)
+    excluded = set()
+    if dne:
+        offset = 0
+        while True:
+            rows = brevo("GET", f"/contacts/lists/{dne['id']}/contacts?limit=500&offset={offset}", key).get("contacts", [])
+            excluded |= {c["email"].lower() for c in rows}
+            if len(rows) < 500:
+                break
+            offset += 500
+
+    final, skipped, bought, left_out = [], 0, 0, 0
     for t in targets:
         e = t["email"].lower()
-        if e in buyers:
+        if e in excluded:
+            left_out += 1
+        elif e in buyers:
             bought += 1
         elif e in blocked or marketing_blacklisted(e, key):
             skipped += 1
@@ -122,7 +139,7 @@ def main():
     groups = {a: [t for t in final if t["audience"] == a] for a in RANK}
     logger.info(f"Wave {wave} {'(old contacts only) ' if old_tag else ''}| {len(final)} people: "
                 + ", ".join(f"{a} {len(g)}" for a, g in groups.items())
-                + f" | unsubscribed/blocked {skipped} | already bought {bought}")
+                + f" | unsubscribed/blocked {skipped} | already bought {bought} | do-not-email list {left_out}")
 
     if "--create" not in args:
         logger.info("Counts only. Add --create to fill the Brevo lists and create the draft campaigns.")
