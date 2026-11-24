@@ -22,6 +22,11 @@ Brevo only accepts calls from the VPS. Pass the API key from the payment contain
   ... --wave launch --test-email you@example.com                # all 3 versions, marked [TEST]
   ... --wave launch --list-id N --send                          # live
 Waves: teaser (Tue Nov 24), launch (Fri Nov 27), lastcall (Mon Nov 30).
+
+Old-contact split (bounce protection): with --contacts-file /tmp/bf26_local_contacts.csv
+  --skip-old   leaves out people last seen before 2024 (send to everyone else first)
+  --only-old   sends only to them (later, once the bounce rate looks fine)
+Current customers (tracker "active") are never treated as old.
 The teaser skips the site's notify signups (they asked for one email when it starts).
 """
 
@@ -164,6 +169,17 @@ def build_targets(list_ids, key: str, wave: str, past_ids=()) -> list:
     return list(best.values())
 
 
+def old_contacts(path) -> set:
+    """Emails last seen before 2024 in the merged contacts file (EMAIL, LAST_SEEN columns)."""
+    if not path or not Path(path).exists():
+        logger.error("--skip-old / --only-old need --contacts-file /tmp/bf26_local_contacts.csv. Stopping.")
+        sys.exit(1)
+    import csv
+    with open(path, newline="", encoding="utf-8") as fh:
+        return {r["EMAIL"].strip().lower() for r in csv.DictReader(fh)
+                if r.get("LAST_SEEN") and r["LAST_SEEN"] < "2024-01-01"}
+
+
 def arg(args, flag):
     return args[args.index(flag) + 1] if flag in args else None
 
@@ -218,6 +234,12 @@ def main():
             skipped += 1
         else:
             final.append(t)
+
+    if "--skip-old" in args or "--only-old" in args:
+        old = old_contacts(arg(args, "--contacts-file"))
+        is_old = lambda t: t["email"].lower() in old and t["audience"] != "active"
+        final = [t for t in final if (is_old(t) if "--only-old" in args else not is_old(t))]
+        logger.info(f"Old-contact split: {'ONLY people last seen before 2024' if '--only-old' in args else 'skipping people last seen before 2024'}")
 
     counts = {a: sum(t["audience"] == a for t in final) for a in RANK}
     logger.info(f"Wave {wave} | to send {len(final)} (active {counts['active']}, churned {counts['churned']}, "
