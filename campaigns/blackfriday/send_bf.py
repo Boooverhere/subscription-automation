@@ -5,7 +5,10 @@ Audiences (one email per address per wave, customers win over subscribers):
   active      tracker status active / expires soon
   churned     tracker status expired / churned
   notify      visitors who asked on iptvsup.com to be emailed when the sale starts
-  subscriber  contacts in the Brevo newsletter list (--list-id) who are not in the tracker
+  churned     also: contacts in the lists given with --past-list-id (past customers gathered
+              from Stripe/WooCommerce by gather_contacts.py)
+  subscriber  contacts in the Brevo lists given with --list-id (comma-separated, e.g. 10,26)
+              who are not in the tracker
 Skips: Brevo blocklists (marketing unsubscribes + transactional blocks), SKIP_EMAILS,
 addresses already sent this wave, and anyone who ordered on iptvsup.com since the
 sale started (Nov 26), so buyers don't get the reminder or last-call emails.
@@ -132,7 +135,7 @@ def load_sent(wave: str) -> set:
     return {l.strip().lower() for l in p.read_text().splitlines() if l.strip()} if p.exists() else set()
 
 
-def build_targets(list_id, key: str, wave: str) -> list:
+def build_targets(list_ids, key: str, wave: str, past_ids=()) -> list:
     best = {}
 
     def add(email, name, aud):
@@ -152,11 +155,12 @@ def build_targets(list_id, key: str, wave: str) -> list:
     if wave != "teaser":
         for row in notify_signups():
             add(row.get("email", ""), "", "notify")
-    if list_id:
-        for c in list_contacts(list_id, key):
-            attrs = c.get("attributes") or {}
-            name = (attrs.get("FIRSTNAME") or attrs.get("PRENOM") or "").strip()
-            add(c.get("email", ""), name, "subscriber")
+    for ids, aud in ((list_ids, "subscriber"), (past_ids, "churned")):
+        for list_id in ids:
+            for c in list_contacts(list_id, key):
+                attrs = c.get("attributes") or {}
+                name = (attrs.get("FIRSTNAME") or attrs.get("PRENOM") or "").strip()
+                add(c.get("email", ""), name, aud)
     return list(best.values())
 
 
@@ -189,12 +193,13 @@ def main():
     if not key:
         logger.error("BREVO_API_KEY not set: cannot check unsubscribes. See the usage at the top. Stopping.")
         sys.exit(1)
-    list_id = int(arg(args, "--list-id")) if arg(args, "--list-id") else None
-    if not list_id:
+    list_ids = [int(x) for x in arg(args, "--list-id").split(",") if x.strip()] if arg(args, "--list-id") else []
+    if not list_ids:
         logger.warning("No --list-id: newsletter subscribers are NOT included.")
 
     try:
-        targets = build_targets(list_id, key, wave)
+        past_ids = [int(x) for x in arg(args, "--past-list-id").split(",") if x.strip()] if arg(args, "--past-list-id") else []
+        targets = build_targets(list_ids, key, wave, past_ids)
         blocked = transactional_blocked(key)
     except urllib.error.HTTPError as e:
         logger.error(f"Brevo API refused ({e.code}). Run this on the VPS. Stopping.")
